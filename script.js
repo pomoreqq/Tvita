@@ -1,6 +1,7 @@
 const returnRandomZasada = () => {
     const zasady = ['A', 'T','C','G'];
     return zasady[Math.floor(Math.random() * zasady.length)];
+    
 }
 
 
