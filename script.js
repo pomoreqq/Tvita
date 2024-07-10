@@ -1,9 +1,14 @@
 const returnRandomZasada = () => {
     const zasady = ['A', 'T','C','G'];
     return zasady[Math.floor(Math.random() * zasady.length)];
-    
+
 }
 
+const envariomentCountries = {
+        Polska: { preferowaneZasady: ['C', 'G'], threshold: 55 },
+        Czechy: { preferowaneZasady: ['A', 'T'], threshold: 60 },
+        Niemcy: { preferowaneZasady: ['C', 'A'], threshold: 55 }
+}
 
 const dnaMaker = () => {
     const dnaArr = [];
@@ -13,10 +18,11 @@ const dnaMaker = () => {
     return dnaArr
 }
 
-const tVitaFactory = (specNumber, dna) => { 
+const tVitaFactory = (specNumber, dna,envariomentCountries) => { 
     return {
         specNumber: specNumber,
         dna: dna,
+        enviroment: envariomentCountries,
         mutate() {
             const randomIndex = Math.floor(Math.random() * this.dna.length);
             const obecnaZasada = this.dna[randomIndex];
@@ -78,13 +84,44 @@ const tVitaFactory = (specNumber, dna) => {
                 
               }
               return this.dna
+        },
+        isAdaptedToEnviroment() {
+            const env = this.enviroment;
+            const count = this.dna.filter(base => env.preferowaneZasady.includes(base)).length
+            const percentage = (count/this.dna.length) * 100;
+            return percentage >= env.threshold;
         }
     }
 }
-const first = tVitaFactory(1,dnaMaker())
-console.log('bazowe dna: ',first.dna);
-const mutate = first.specialMutate(5)
-console.log('dna po 5 mutacjach', mutate)
+
+
+
+document.getElementById('generate').addEventListener('click', generateOrganism);
+
+function generateOrganism() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const dna = dnaMaker();
+    const specimen = tVitaFactory(1, dna, 'forest');
+    drawOrganism(ctx, specimen);
+}
+
+function drawOrganism(ctx, organism) {
+    const dna = organism.dna;
+    const colors = {
+        'A': 'green',
+        'T': 'red',
+        'C': 'blue',
+        'G': 'yellow'
+    };
+    for (let i = 0; i < dna.length; i++) {
+        ctx.fillStyle = colors[dna[i]];
+        ctx.fillRect(i * 40, 0, 40, 100);
+    }
+}
+
 // let survingArr = []
 // let specNum = 1
 // while(survingArr.length < 20) {
